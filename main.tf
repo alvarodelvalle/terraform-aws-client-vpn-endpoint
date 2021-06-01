@@ -1,8 +1,16 @@
+locals {
+  algorithm = var.algorithm
+  rsa_bits = upper(local.algorithm) == "RSA" ? var.rsa_bits : ""
+  ecdsa_curve = upper(local.algorithm) == "ECDSA" ? var.ecdsa_curve : ""
+}
+
 #######################################
 ## Certificate Authority
 #######################################
 resource "tls_private_key" "ca" {
-  algorithm = "RSA"
+  algorithm = local.algorithm
+  rsa_bits = local.rsa_bits
+  ecdsa_curve = local.ecdsa_curve
 }
 
 resource "tls_self_signed_cert" "ca" {
@@ -102,14 +110,15 @@ resource "aws_ec2_client_vpn_endpoint" "this" {
   }
   connection_log_options {
     enabled = false
-    cloudwatch_log_group = ""
-    cloudwatch_log_stream = ""
+    cloudwatch_log_group = var.cloudwatch_log_group
+    cloudwatch_log_stream = var.cloudwatch_log_stream
   }
 }
 
 resource "aws_ec2_client_vpn_network_association" "this" {
-  client_vpn_endpoint_id = ""
-  subnet_id = ""
+  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.this.id
+  subnet_id = var.subnet_id
+  security_groups = var.custom_security_groups
 }
 
 resource "aws_cloudwatch_log_group" "this" {
