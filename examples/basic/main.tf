@@ -7,8 +7,10 @@ provider "aws" {
   region = "us-east-1"
 }
 
-module "example" {
-  source = "alvarodelvalle/terraform-aws-client-vpn-endpoint"
+module "client-vpn-endpoint" {
+  source  = "alvarodelvalle/client-vpn-endpoint/aws"
+  version = "0.0.1"
+  # insert the 6 required variables here
   algorithm = "RSA"
   validity_period_hours = 87600
   prefix = local.prefix
